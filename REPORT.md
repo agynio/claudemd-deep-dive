@@ -89,11 +89,16 @@ the proxy logged:
 - Count of each CLAUDE.md marker in the system prompt vs messages
 - `input_tokens` (non-cached) from the SSE `message_start` event
 
-Full request bodies were saved to `proxy.bodies.jsonl` for deep inspection.
+Full request bodies were saved to `proxy.bodies.jsonl` for deep inspection
+(committed — see [proxy.bodies.jsonl](./proxy.bodies.jsonl)).
 
 Tests used the `@anthropic-ai/claude-agent-sdk` TypeScript SDK with the
 `InstructionsLoaded` hook to observe loading events, and `settingSources: ["project"]`
 to enable project CLAUDE.md loading.
+
+Source code evidence was extracted from `@anthropic-ai/claude-agent-sdk/cli.js` with
+byte offsets and saved to [results-source.json](./results-source.json) (script:
+`src/extract-source.ts`).
 
 ---
 
@@ -135,27 +140,45 @@ System prompt size stays constant at `154ch` — **zero growth** regardless of h
 subdir CLAUDE.md files are loaded. It is not a separate new message either.
 
 The CLAUDE.md content is appended **directly to the end of the file content string**
-inside the same tool result — as if the file itself contained the instructions:
+inside the same tool result — as if the file itself contained the instructions.
+
+**Proof — `proxy.bodies.jsonl` request 3, `msg[2]` tool_result:**
 
 ```
-tool_result for reading src/main.py:
+"     1→# File A\n     2→\n     3→MARKER: FILE_A_CONTENT\n..."
 
-  "     1→def add(a: int, b: int) -> int:
-        2→    return a + b
-        ...rest of file content...
+<system-reminder>
+Contents of .../test-env/src/CLAUDE.md:
 
-   <system-reminder>
-   Contents of .../test-env/src/CLAUDE.md:
-
-   # Source Directory Instructions
-   MARKER: SRC_DIR_LOADED
-   ...instructions...
-   </system-reminder>"
+# Source Directory Instructions
+MARKER: SRC_DIR_LOADED
+...instructions...
+</system-reminder>
 ```
 
-From the model's perspective, reading a file in `src/` is indistinguishable from
-reading a file that happens to have extra content appended at the bottom. The
-instructions arrive as part of the file read, not as a system-level directive.
+The file content and the CLAUDE.md instructions are a single concatenated string in
+one `tool_result` block. From the model's perspective, reading a file in `src/` is
+indistinguishable from reading a file that happens to have extra content at the bottom.
+
+**Source proof — `results-source.json` (call site, offset 5373114):**
+
+```js
+// Inside the Read tool's result-building code:
+if (K = A.file.content ? _B9(A) + qB9(A.file) : "")
+```
+
+`_B9(A)` returns the `<system-reminder>` block; `qB9(A.file)` returns the file
+content. The CLAUDE.md block is **prepended** to the file content.
+
+`_B9` → `lJ7` → wraps in `<system-reminder>`:
+
+```js
+function lJ7(A) {
+  let q = Cz8(A);
+  if (!q) return "";
+  return `<system-reminder>${q}</system-reminder>\n`;
+}
+```
 
 Root `CLAUDE.md` is handled differently: it lands in `msg[0]`'s content array at
 session start as a `<system-reminder>` block, before any turns. Subdirs never touch
@@ -197,22 +220,27 @@ read src/b.md  → InstructionsLoaded does NOT fire → tool_result is clean fil
 ```
 
 Only **one** `InstructionsLoaded` event for the entire scenario. The source code
-confirms why (`cli.js`):
+confirms why — `results-source.json` (offset 5371689), Read tool's `call` function:
 
 ```js
-function sF8(instructions, query, triggerFile) {
-  for (let instruction of instructions)
-    if (!query.readFileState.has(instruction.path)) {  // check session Map
-      query.readFileState.set(instruction.path, ...)   // mark loaded
-      fireInstructionsLoadedHook(...)                  // inject
-    }
-    // else: already in readFileState → skip entirely
+async call({file_path: A, ...}, z, _, w) {
+  let { readFileState: O, ... } = z   // O is the session-scoped Map
+  // ...
+  // inside L94 → _B9(A) checks the Map before injecting
+}
+
+function _B9(A) {
+  let q = h94.get(A);          // retrieve stored CLAUDE.md for this dir
+  if (q === undefined) return "";
+  return lJ7(q);               // wrap in <system-reminder> and return
 }
 ```
 
-`query.readFileState` is a `Map` on the session object that lives for the entire
-subprocess. First Read in a directory: inject. Every further Read in that directory:
-skip completely.
+The `readFileState` Map lives on the session object (`z`) for the entire subprocess
+lifetime. `h94` is populated on first traversal; subsequent calls to `_B9` for the
+same directory find it already stored and return the same block — but the Read tool
+only calls `_B9` once per directory (the Map check gates the injection upstream).
+First Read in a directory: inject and mark. Every further Read: skip completely.
 
 ---
 

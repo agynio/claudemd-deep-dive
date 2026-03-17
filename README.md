@@ -122,6 +122,7 @@ The proxy confirms the system prompt never changes (`sys=154ch` constant). The
 CLAUDE.md content only ever appears inside the messages array, in the tool result
 that triggered the load.
 
-Source-confirmed: see `sF8` function in
-[`@anthropic-ai/claude-agent-sdk/cli.js`](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk)
-for the deduplication logic.
+Source-confirmed: see `results-source.json` for extracted `cli.js` snippets —
+`lJ7` wraps content in `<system-reminder>`, `_B9` calls it, and the Read tool's
+call site prepends `_B9(A)` to the file content string. `readFileState` on the
+session object is the deduplication gate.
