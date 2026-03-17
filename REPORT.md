@@ -1,28 +1,52 @@
 # How Claude Code Reads CLAUDE.md Files: Research Report
 
+## Why We Investigated This
+
+When building agents with the Claude Code Agent SDK we started putting instructions
+into `CLAUDE.md` files in subdirectories — things like "always add type hints in
+`src/`" or "run tests before committing in `tests/`". It worked, but we had no idea
+*how* it worked, and that uncertainty led to real questions:
+
+- **When does it actually load?** Does Claude read `src/CLAUDE.md` when it first
+  touches the directory, or is it pre-loaded at session start?
+- **Does it reload every time?** If Claude reads five files in `src/`, does it load
+  `src/CLAUDE.md` five times?
+- **Is there any deduplication?** Or do the instructions pile up in context?
+- **What happens after a session restart?** If I resume a session, are the subdir
+  instructions still active, or do they need to be re-triggered?
+- **How much does it cost?** Each injection is potentially hundreds of tokens. If
+  it re-injects on every file read, token costs could blow up.
+- **Where exactly does the content go?** System prompt? Messages? Does it grow the
+  system prompt on every new subdir?
+
+To answer these we built an intercepting HTTP proxy between Claude Code and the
+Anthropic API and traced every `/v1/messages` call across a series of experiments.
+
+---
+
 ## TL;DR
 
-Claude Code loads subdirectory `CLAUDE.md` files **on demand**, not at session start.
-Loading is triggered by the `Read` tool, injected directly into the tool result as a
-`<system-reminder>` block, deduplicated per subprocess, and stripped from disk storage
-so resumed sessions always start fresh.
+Subdir `CLAUDE.md` files are loaded **on demand by the `Read` tool**, injected into
+the **tool result** (not the system prompt), deduplicated per subprocess via an
+in-memory Map, stripped from disk before the session is saved, and re-injected fresh
+on the first Read of any resumed session. Token cost is near-zero thanks to prompt
+caching.
 
 ---
 
 ## Test Setup
 
-A test environment was created with `CLAUDE.md` files at multiple directory levels:
+A test environment with `CLAUDE.md` files at multiple directory levels, each
+containing a unique marker string:
 
 ```
 test-env/
-  CLAUDE.md          ← root (MARKER: PROJECT_ROOT_LOADED)
+  CLAUDE.md          ← root   (MARKER: PROJECT_ROOT_LOADED)
   src/
     CLAUDE.md        ← subdir (MARKER: SRC_DIR_LOADED)
     main.py
     utils.py
     constants.py
-    a.md
-    b.md
   tests/
     CLAUDE.md        ← subdir (MARKER: TESTS_DIR_LOADED)
     test_main.py
@@ -31,27 +55,28 @@ test-env/
     README.md
 ```
 
-An HTTP intercepting proxy was placed between Claude Code and the Anthropic API
-(`ANTHROPIC_BASE_URL=http://127.0.0.1:9877`). The proxy logged every `/v1/messages`
-request: system prompt size, message count, occurrence of each CLAUDE.md marker in
-system prompt vs messages, and input/output token counts. Full request bodies were
-saved to `proxy.bodies.jsonl` for deep inspection.
+An HTTP intercepting proxy (`src/proxy.ts`) on port 9877. Claude Code was pointed
+at it via `ANTHROPIC_BASE_URL=http://127.0.0.1:9877`. For every `/v1/messages` call
+the proxy logged:
+- System prompt character count
+- Number of messages in the array
+- Count of each CLAUDE.md marker in the system prompt vs messages
+- `input_tokens` (non-cached) from the SSE `message_start` event
 
-Tests used the `@anthropic-ai/claude-agent-sdk` TypeScript SDK with `settingSources: ["project"]`
-to enable project CLAUDE.md loading, and the `InstructionsLoaded` hook to observe
-when Claude Code fires the loading event.
+Full request bodies were saved to `proxy.bodies.jsonl` for deep inspection.
+
+Tests used the `@anthropic-ai/claude-agent-sdk` TypeScript SDK with the
+`InstructionsLoaded` hook to observe loading events, and `settingSources: ["project"]`
+to enable project CLAUDE.md loading.
 
 ---
 
-## Finding 1: Only `Read` Triggers Subdir CLAUDE.md Loading
+## Finding 1: Only the `Read` Tool Triggers Subdir CLAUDE.md Loading
 
-**Test:** Ran separate scenarios using each tool type against files in `src/`:
-- `Bash` — ran `cat src/main.py`
-- `Glob` — ran `src/**/*.py`
-- `Write` — wrote a new file to `src/`
-- `Read` — read `src/main.py`
+**Question:** Does Claude load `src/CLAUDE.md` when it runs bash in `src/`, globs
+files there, or writes a new file there?
 
-**Result:**
+**Test:** Separate scenarios using each tool against `src/`:
 
 | Tool  | `InstructionsLoaded` fired? | `src/CLAUDE.md` in API call? |
 |-------|-----------------------------|-------------------------------|
@@ -60,31 +85,35 @@ when Claude Code fires the loading event.
 | Write | ✗ no                        | ✗ no                          |
 | Read  | ✓ yes                       | ✓ yes                         |
 
-Only the `Read` tool triggers subdir CLAUDE.md loading. Listing, running, or writing
-files does not.
+**Practical implication:** If your agent only writes files or runs bash commands in a
+directory, it will never see that directory's `CLAUDE.md`. A common agent pattern is
+to read a file before editing it — that read is what loads the instructions. An agent
+that generates and writes code without reading first operates blind to subdir rules.
 
 ---
 
 ## Finding 2: Injection Is in the Tool Result, Not the System Prompt
 
-**Test:** Proxy logged `sys=` (system prompt chars) and `msg_markers=` (CLAUDE.md
-marker occurrences across all messages) for every API call.
+**Question:** Where does the CLAUDE.md content actually appear — in the system prompt,
+or somewhere in the messages?
 
-**Result:**
-
-```
-call #1: sys=154ch | msgs=1 | msg_markers=root/CLAUDE.md×1          ← before Read
-call #2: sys=154ch | msgs=3 | msg_markers=root/CLAUDE.md×1,src/CLAUDE.md×1  ← after Read
-```
-
-System prompt size stays constant at `154ch` regardless of how many subdir CLAUDE.md
-files are loaded. Zero system prompt growth.
-
-The subdir CLAUDE.md content is injected as a `<system-reminder>` block appended to
-the tool result of the triggering Read call:
+**Test:** Proxy logged `sys=` (system prompt chars) and marker occurrences in both
+system prompt and messages for every API call.
 
 ```
-msg[2] content (tool_result for reading src/main.py):
+call before Read:  sys=154ch | msgs=1 | msg_markers: root/CLAUDE.md×1
+call after Read:   sys=154ch | msgs=3 | msg_markers: root/CLAUDE.md×1, src/CLAUDE.md×1
+```
+
+System prompt size stays constant at `154ch` — **zero growth** regardless of how many
+subdir CLAUDE.md files are loaded.
+
+The content is injected as a `<system-reminder>` block appended directly to the tool
+result of the triggering Read call:
+
+```
+tool_result for reading src/main.py:
+
   "     1→def add(a: int, b: int) -> int:
         ...file content...
 
@@ -93,186 +122,185 @@ msg[2] content (tool_result for reading src/main.py):
 
    # Source Directory Instructions
    MARKER: SRC_DIR_LOADED
-   ...
+   ...instructions...
    </system-reminder>"
 ```
 
-The root `CLAUDE.md` is different: it is injected into `msg[0]`'s content array at
-session start, also as a `<system-reminder>` block.
+The model sees the CLAUDE.md content as part of the file read response — alongside
+the file content, not as a top-level instruction. Root `CLAUDE.md` works differently:
+it lands in `msg[0]`'s content array at session start.
 
 ---
 
-## Finding 3: Injection Is Sticky Within a Subprocess
+## Finding 3: Instructions Stay Visible for the Rest of the Session
 
-**Test:** Within a single `query()` call, the agent read `src/a.md`, then (following
-CLAUDE.md instructions) read `src/b.md`. Proxy tracked marker counts across all
-subsequent API calls.
+**Question:** Once loaded, does the CLAUDE.md content stay in context, or does it
+disappear after that turn?
 
-**Result:**
+The injection lands in `msg[2]` (the tool result). That message stays in the
+in-memory conversation history for the entire subprocess lifetime. Every subsequent
+LLM API call sends the full messages array including `msg[2]`:
 
 ```
-call #4: msgs=3  src×1  ← after reading a.md, injection in msg[2]
-call #6: msgs=5  src×1  ← after reading b.md, msg[2] still carries the injection
+call after read src/a.md:   msgs=3  src×1   ← injected in msg[2]
+call after read src/b.md:   msgs=5  src×1   ← same msg[2] still carried forward
+call after edit src/main.py: msgs=7  src×1   ← still there
 ```
 
-Once `src/CLAUDE.md` is injected into `msg[2]`, that message stays in the in-memory
-conversation history for the entire subprocess lifetime. Every subsequent LLM API call
-includes `msg[2]` (with the injection) in its messages array. The instruction remains
-visible to the model for all future turns — no re-injection needed.
+No re-injection needed. Once it's in message history it stays there, just like any
+other prior turn.
 
 ---
 
 ## Finding 4: Deduplication — Once Per Subprocess Per Directory
 
-**Test:** Same subprocess, two sequential reads of different files in `src/` (`a.md`
-then `b.md`). Observed `InstructionsLoaded` hook events and tool result content.
+**Question:** If Claude reads 10 files in `src/`, does `src/CLAUDE.md` get injected
+10 times?
 
-**Result:**
+**Test:** Prompted the agent to read `src/a.md`. `src/CLAUDE.md` instructed it to
+then also read `src/b.md`. Observed hook events and tool result content.
 
 ```
 read src/a.md  → InstructionsLoaded fires  → src/CLAUDE.md injected into tool_result
-read src/b.md  → InstructionsLoaded does NOT fire  → tool_result is clean file content only
+read src/b.md  → InstructionsLoaded does NOT fire → tool_result is clean file content only
 ```
 
-Only **one** `InstructionsLoaded` event fired for the entire scenario.
-
-**Source code confirmation** (`cli.js`):
+Only **one** `InstructionsLoaded` event for the entire scenario. The source code
+confirms why (`cli.js`):
 
 ```js
-function sF8(A, q, K) {
-  for (let _ of A)
-    if (!q.readFileState.has(_.path)) {    // check session-scoped Map
-      q.readFileState.set(_.path, ...)     // mark as loaded
-      ZF6(...)                             // fire InstructionsLoaded hook + inject
+function sF8(instructions, query, triggerFile) {
+  for (let instruction of instructions)
+    if (!query.readFileState.has(instruction.path)) {  // check session Map
+      query.readFileState.set(instruction.path, ...)   // mark loaded
+      fireInstructionsLoadedHook(...)                  // inject
     }
-    // else: already loaded this subprocess → skip entirely
+    // else: already in readFileState → skip entirely
 }
 ```
 
-`q.readFileState` is a `Map` on the query/session object. It persists for the entire
-subprocess lifetime and prevents any re-injection for the same CLAUDE.md file.
+`query.readFileState` is a `Map` on the session object that lives for the entire
+subprocess. First Read in a directory: inject. Every further Read in that directory:
+skip completely.
 
 ---
 
 ## Finding 5: Parallel-Batched Reads — One Injection for the Batch
 
-**Test:** Prompted the agent to "Read `src/main.py`, then `src/utils.py`, then
-`src/constants.py`." Claude batched all three as parallel `tool_use` blocks in one
-assistant message.
+**Test:** Agent read `src/main.py`, `src/utils.py`, and `src/constants.py` in a
+single parallel batch (all three as `tool_use` blocks in one assistant message).
 
-**Result:** Inspected `proxy.bodies.jsonl` to see the three tool results:
+Inspecting `proxy.bodies.jsonl`:
 
 ```
-tool_result[0]  src/main.py      →  src×0  (no injection)
-tool_result[1]  src/utils.py     →  src×0  (no injection)
-tool_result[2]  src/constants.py →  src×1  ← injection in last result only
+tool_result[0]  src/main.py      →  src×0   (no injection)
+tool_result[1]  src/utils.py     →  src×0   (no injection)
+tool_result[2]  src/constants.py →  src×1   ← injection in last result only
 ```
 
-`InstructionsLoaded` fired once. When multiple files from the same directory are read
-in a single parallel batch, `src/CLAUDE.md` is injected into exactly one tool result
-(the last one processed). `q.readFileState` prevents any further injections within the
-same batch.
+One `InstructionsLoaded` fired. Even within a parallel batch, `readFileState` prevents
+duplicates. The CLAUDE.md content appears in the last tool result processed.
 
 ---
 
-## Finding 6: Resumed Sessions Start Fresh — Stripping at Write Time
+## Finding 6: Resumed Sessions — Fresh Injection Every Time
 
-**Test:** Ran a three-scenario chain (S1 → S2 → S3), each resuming the previous
-session via `resume: sessionId`. All three read from `src/`. Inspected the on-disk
-session file and the proxy marker counts.
+**Question:** If I resume a session that already read files in `src/`, do the
+instructions carry over or does Claude have to re-load them?
 
-**Result — session file on disk:**
+**Test:** Three-scenario chain (S1 → S2 → S3), each resuming the previous session.
+All three read from `src/`. Inspected the on-disk session file and proxy marker counts.
 
-```
-python3 -c "... count 'SRC_DIR_LOADED' in each .jsonl line ..."
+**What's on disk:**
 
-line 0: type=queue-operation  src×0
-line 2: type=user (tool_result) src×0   ← stripped when written
-line 3: type=assistant          src×0
-...
-```
-
-The `<system-reminder>` injections are **stripped from tool results before writing to
-disk**. The on-disk `.jsonl` contains clean file content only.
-
-**Result — proxy marker counts for S3 (third subprocess, full history loaded):**
+Every turn is written to a `.jsonl` file in `~/.claude/projects/` as it happens
+(append-only, immediate — crash safe). But the `<system-reminder>` is **stripped
+before writing**. The on-disk tool result contains only the raw file content:
 
 ```
-call (msgs=9, S3 first call):  src×0   ← full history of S1+S2 in memory, no src marker
-call (msgs=11, after S3 Read): src×1   ← fresh injection from this subprocess's first Read
+# In memory (sent to API):
+tool_result: "file content...\n<system-reminder>src/CLAUDE.md content</system-reminder>"
+
+# Written to .jsonl (on disk):
+tool_result: "file content..."
 ```
 
-Despite `msgs=9` containing the full conversation history of two prior sessions that
-each read from `src/`, the marker count is `src×0`. The prior injections were stripped
-at write time. On the first Read in S3, a fresh injection happens (`src×1`).
+**Proxy evidence — S3's first API call (msgs=9, full history of S1+S2):**
 
-**The lifecycle of a subdir CLAUDE.md injection:**
+```
+call (msgs=9):   src×0   ← S1 and S2 both read src/, but their injections are gone
+call (msgs=11):  src×1   ← fresh injection from S3's first Read
+```
+
+Despite `msgs=9` containing history from two prior sessions that each read `src/`
+files, the marker count is zero. The injections were stripped at write time. Each new
+subprocess starts with an empty `readFileState` and clean message history — the first
+Read always re-injects.
+
+**The complete lifecycle:**
 
 ```
 subprocess starts
-  └─ read session file from disk (no system-reminders)
+  ├─ reads .jsonl from disk → messages[] in memory (no system-reminders)
   └─ q.readFileState = {}  (empty)
 
 first Read of src/file.py
-  └─ sF8 checks readFileState → not found
-  └─ inject src/CLAUDE.md into tool_result (IN MEMORY only)
-  └─ readFileState.set("src/CLAUDE.md", ...)
-  └─ write tool_result to disk WITHOUT the <system-reminder>  ← stripped here
+  ├─ sF8 checks readFileState → not found
+  ├─ appends <system-reminder> to tool_result IN MEMORY
+  ├─ readFileState.set("src/CLAUDE.md")
+  └─ writes tool_result to disk WITHOUT the <system-reminder>
 
-all subsequent LLM calls this subprocess
-  └─ src/CLAUDE.md visible in msg history (the injected tool_result is in memory)
+subsequent LLM calls this subprocess
+  └─ src/CLAUDE.md visible via normal message history (msg[N] carries it)
 
 any further Read of src/ files
-  └─ sF8 checks readFileState → found → skip
+  └─ sF8 finds it in readFileState → skips entirely
 
 subprocess exits
-  └─ q.readFileState discarded
-  └─ disk has clean session history
+  ├─ readFileState discarded
+  └─ disk has clean history, ready for next resume
 ```
 
 ---
 
-## Finding 7: Token Cost Is Minimal Due to Prompt Caching
+## Finding 7: Token Cost Is Near-Zero Due to Prompt Caching
 
-**Test:** Proxy captured `input_tokens` (non-cached tokens only) from the SSE
-`message_start` event across all scenarios.
+**Question:** Does re-injecting CLAUDE.md on every session resume blow up token costs?
 
-**Result:**
+The proxy captures `input_tokens` from the SSE `message_start` event — this is the
+**non-cached** portion only. The API also returns `cache_read_input_tokens` (tokens
+served from cache, ~10× cheaper) which we weren't initially capturing.
 
 ```
-call before Read:  in=3    (3 non-cached tokens — new user prompt)
-call after Read:   in=1    (1 non-cached token — nearly everything cached)
+call before Read:  input_tokens=3   (3 non-cached — just the new user prompt)
+call after Read:   input_tokens=1   (1 non-cached — everything else is cached)
 ```
-
-The Anthropic API returns three token fields:
-- `input_tokens` — tokens NOT from cache (what we capture)
-- `cache_read_input_tokens` — tokens served from cache (~10× cheaper, not captured)
-- `cache_creation_input_tokens` — tokens written to new cache entry
 
 Within a subprocess's call chain, all prior messages are cached after the first call.
-The only non-cached tokens are the new tail since the last cache checkpoint — hence
-`in=1`. The actual total context grows with each turn, but is served cheaply from
-cache.
+Only the new "tail" beyond the last cache checkpoint counts as non-cached — hence
+`in=1`. The total context grows with each turn, but the cost grows very slowly because
+the growing portion is served from cache.
 
-Across subprocess boundaries, the stripped tool_results differ from the cached versions
-(which included `<system-reminder>`), causing a cache miss on those messages. However
-the cost is bounded: each subprocess only pays once for its first Read in a directory.
+Across subprocess boundaries the stripped tool results differ from what was originally
+cached (the cached versions contained `<system-reminder>`), causing a cache miss on
+those messages. But this is a one-time cost per session resume per directory — not
+per-turn.
 
 ---
 
-## Summary Table
+## Summary
 
-| Behaviour | Result |
-|-----------|--------|
-| What triggers subdir CLAUDE.md load | `Read` tool only — not Bash, Glob, Write |
-| Where injection appears | Inside tool_result as `<system-reminder>`, not in system prompt |
-| System prompt growth | None — stays constant regardless of subdirs loaded |
-| Re-injection within same subprocess | Never — `q.readFileState` deduplicates |
-| Visibility after injection | Sticky — stays in message history for all subsequent LLM calls |
-| Parallel batched reads (same dir) | One injection total for the batch |
-| Resumed session (new subprocess) | `readFileState` starts empty → fresh injection on first Read |
-| On-disk storage | `<system-reminder>` stripped before writing — disk is always clean |
-| Token cost of re-injection (new subprocess) | Near-zero due to prompt caching |
+| Question | Answer |
+|----------|--------|
+| What triggers subdir CLAUDE.md? | `Read` tool only — not Bash, Glob, Write |
+| Where does content appear? | Inside tool_result as `<system-reminder>`, not system prompt |
+| Does system prompt grow? | Never — stays constant regardless of subdirs loaded |
+| Re-injected on every Read? | No — once per subprocess per directory (`readFileState` Map) |
+| Stays visible after injection? | Yes — sticky in message history for all subsequent turns |
+| Parallel batched reads? | One injection total for the batch |
+| Session resume (new subprocess)? | `readFileState` starts empty → fresh injection on first Read |
+| Persisted to disk? | `<system-reminder>` stripped before writing |
+| Token cost? | Near-zero within a session; one cache miss per directory on resume |
 
 ---
 
@@ -297,12 +325,12 @@ session start       │  read .jsonl from disk              │
                     │  ├─ NOT found:                       │
                     │  │   inject <system-reminder>        │
                     │  │   into tool_result (memory only)  │
-                    │  │   readFileState.set(path, ...)    │
+                    │  │   readFileState.set(path)         │
                     │  │   fire InstructionsLoaded hook    │
-                    │  └─ found: skip                      │
+                    │  └─ found: skip entirely             │
                     │                                      │
-                    │  write tool_result to .jsonl         │
-                    │  (system-reminder STRIPPED)          │
+                    │  write tool_result to .jsonl on disk │
+                    │  (<system-reminder> STRIPPED)        │
                     └──────────────┬──────────────────────┘
                                    │
                     ┌──────────────▼──────────────────────┐
