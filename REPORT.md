@@ -304,7 +304,7 @@ subprocess starts
   └─ q.readFileState = {}  (empty)
 
 first Read of src/file.py
-  ├─ sF8 checks readFileState → not found
+  ├─ readFileState checked → not found
   ├─ appends <system-reminder> to tool_result IN MEMORY
   ├─ readFileState.set("src/CLAUDE.md")
   └─ writes tool_result to disk WITHOUT the <system-reminder>
@@ -313,7 +313,7 @@ subsequent LLM calls this subprocess
   └─ src/CLAUDE.md visible via normal message history (msg[N] carries it)
 
 any further Read of src/ files
-  └─ sF8 finds it in readFileState → skips entirely
+  └─ readFileState → already set → skips entirely
 
 subprocess exits
   ├─ readFileState discarded
@@ -380,7 +380,7 @@ session start       │  read .jsonl from disk              │
                                    │ tool_use: Read(src/file.py)
                     ┌──────────────▼──────────────────────┐
                     │  Read tool executes                  │
-                    │  sF8 checks readFileState            │
+                    │  checks readFileState Map            │
                     │  ├─ NOT found:                       │
                     │  │   inject <system-reminder>        │
                     │  │   into tool_result (memory only)  │
