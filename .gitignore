@@ -9,3 +9,6 @@ proxy.log.json
 
 # Artefacts written by experiments outside test-env
 src/constants.py
+
+# Posts (managed separately)
+REDDIT_POST.md
