@@ -1,19 +1,37 @@
 # I had questions about how CLAUDE.md files actually work in Claude Code agents — so I built a proxy and traced every API call
 
+## First: the different types of CLAUDE.md
+
+Most people know you can put a `CLAUDE.md` at your project root and Claude will pick
+it up. But Claude Code actually supports them at multiple levels:
+
+- **Global** (`~/.claude/CLAUDE.md`) — your personal instructions across all projects
+- **Project root** (`<project>/CLAUDE.md`) — project-wide rules
+- **Subdirectory** (`<project>/src/CLAUDE.md`, `<project>/tests/CLAUDE.md`, etc.) — directory-specific rules
+
+The first two are simple: Claude loads them **once at session start** and they are
+always in context for the whole conversation.
+
+Subdirectories are different. The docs say they are loaded *"on demand as Claude
+navigates your codebase"* — which sounds useful but explains nothing about the actual
+mechanism. Mid-conversation injection into a live LLM context raises a lot of
+questions the docs don't answer.
+
+---
+
+## The questions we couldn't answer from the docs
+
 Been building agents with the Claude Code Agent SDK and we kept putting instructions
 into subdirectory `CLAUDE.md` files. Things like "always add type hints in `src/`" or
 "use pytest in `tests/`". It worked, but we had zero visibility into *how* it worked.
 
-That uncertainty led to real questions we couldn't answer by reading docs:
-
-- **When does it actually load?** At session start? When Claude first touches the
-  directory? On every file read?
+- **What exactly triggers the load?** A file read? Any tool that touches the dir?
 - **Does it reload every time?** 10 file reads in `src/` = 10 injections?
 - **Do instructions pile up in context?** Could this blow up token costs?
+- **Where does the content actually go?** System prompt? Messages? Does the system
+  prompt grow every time a new subdir is accessed?
 - **What happens when you resume a session?** Are the instructions still active or
   does Claude start blind?
-- **Where does the content actually go?** System prompt? Messages? Does it grow the
-  system prompt every time a new subdir is accessed?
 
 We couldn't find solid answers so we built an intercepting HTTP proxy between Claude
 Code and the Anthropic API and traced every single `/v1/messages` call. Here's what

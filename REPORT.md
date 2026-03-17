@@ -1,5 +1,31 @@
 # How Claude Code Reads CLAUDE.md Files: Research Report
 
+## Background: Where CLAUDE.md Files Live
+
+Claude Code supports `CLAUDE.md` files at multiple levels, and they are **not all
+loaded the same way**:
+
+| Location | Example | When loaded | How |
+|----------|---------|-------------|-----|
+| Global | `~/.claude/CLAUDE.md` | Session start | Into `msg[0]` as `<system-reminder>` |
+| Project root | `<project>/CLAUDE.md` | Session start | Into `msg[0]` as `<system-reminder>` |
+| Subdirectory | `<project>/src/CLAUDE.md` | On demand, mid-session | ? |
+
+The global and project-root files are straightforward — Claude loads them once at the
+start of every session and they are always in context. The documentation mentions that
+subdirectory files are read *"on demand as Claude navigates your codebase"*, but that
+description leaves a lot open:
+
+- What exactly triggers the load?
+- Does it happen mid-conversation, and if so where does the content go?
+- Does it cost tokens every time?
+- What survives a session restart?
+
+We couldn't find answers to these questions, so we built an intercepting HTTP proxy
+and ran a series of experiments to trace exactly what happens.
+
+---
+
 ## Why We Investigated This
 
 When building agents with the Claude Code Agent SDK we started putting instructions
