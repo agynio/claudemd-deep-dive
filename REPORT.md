@@ -118,10 +118,10 @@ that generates and writes code without reading first operates blind to subdir ru
 
 ---
 
-## Finding 2: Injection Is in the Tool Result, Not the System Prompt
+## Finding 2: Concatenated Directly Into the Tool Output Text
 
 **Question:** Where does the CLAUDE.md content actually appear — in the system prompt,
-or somewhere in the messages?
+a separate message, or somewhere else?
 
 **Test:** Proxy logged `sys=` (system prompt chars) and marker occurrences in both
 system prompt and messages for every API call.
@@ -132,16 +132,17 @@ call after Read:   sys=154ch | msgs=3 | msg_markers: root/CLAUDE.md×1, src/CLAU
 ```
 
 System prompt size stays constant at `154ch` — **zero growth** regardless of how many
-subdir CLAUDE.md files are loaded.
+subdir CLAUDE.md files are loaded. It is not a separate new message either.
 
-The content is injected as a `<system-reminder>` block appended directly to the tool
-result of the triggering Read call:
+The CLAUDE.md content is appended **directly to the end of the file content string**
+inside the same tool result — as if the file itself contained the instructions:
 
 ```
 tool_result for reading src/main.py:
 
   "     1→def add(a: int, b: int) -> int:
-        ...file content...
+        2→    return a + b
+        ...rest of file content...
 
    <system-reminder>
    Contents of .../test-env/src/CLAUDE.md:
@@ -152,9 +153,13 @@ tool_result for reading src/main.py:
    </system-reminder>"
 ```
 
-The model sees the CLAUDE.md content as part of the file read response — alongside
-the file content, not as a top-level instruction. Root `CLAUDE.md` works differently:
-it lands in `msg[0]`'s content array at session start.
+From the model's perspective, reading a file in `src/` is indistinguishable from
+reading a file that happens to have extra content appended at the bottom. The
+instructions arrive as part of the file read, not as a system-level directive.
+
+Root `CLAUDE.md` is handled differently: it lands in `msg[0]`'s content array at
+session start as a `<system-reminder>` block, before any turns. Subdirs never touch
+the system prompt.
 
 ---
 

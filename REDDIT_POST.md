@@ -83,29 +83,20 @@ the read means skipping the instructions.
 
 ---
 
-## Finding 2: It Goes Into the Tool Result, Not the System Prompt
+## Finding 2: It's Concatenated Directly Into the Tool Output Text
 
-This was the biggest surprise. We expected the system prompt to grow as more subdirs
-were accessed. It doesn't.
+We expected the system prompt to grow. Wrong. We expected a separate message to be
+injected. Also wrong.
 
-Proxy output for a scenario that reads a file in `src/`:
-
-```
-call before Read:  sys=154ch  msgs=1   (system prompt constant)
-call after Read:   sys=154ch  msgs=3   src/CLAUDE.md appears in messages
-```
-
-System prompt stays at **154 chars regardless of how many subdirs are loaded**. Zero
-growth.
-
-Instead, Claude Code appends the CLAUDE.md content as a `<system-reminder>` block
-directly inside the tool result of the triggering Read call:
+The CLAUDE.md content is appended **directly to the end of the file content string**
+inside the same tool result — as if the file itself contained the instructions:
 
 ```
 tool_result for reading src/main.py:
 
   "     1→def add(a: int, b: int) -> int:
-        ...file content...
+        2→    return a + b
+        ...rest of file content...
 
    <system-reminder>
    Contents of src/CLAUDE.md:
@@ -115,9 +106,22 @@ tool_result for reading src/main.py:
    </system-reminder>"
 ```
 
-The model sees CLAUDE.md content as part of the file read response — alongside the
-file it just read. Not as a system-level instruction. Root `CLAUDE.md` (the one at
-your project root) is different: it lands in `msg[0]` at session start.
+Not a new message. Not the system prompt. Just text bolted onto the end of whatever
+file Claude just read. From the model's perspective, reading a file in `src/` is
+indistinguishable from reading a file that happens to have extra content appended at
+the bottom.
+
+Proxy output confirms the system prompt never moves:
+
+```
+call before Read:  sys=154ch  msgs=1
+call after Read:   sys=154ch  msgs=3   ← same size, CLAUDE.md only in messages
+```
+
+**154 chars regardless of how many subdirs are loaded. Zero system prompt growth.**
+
+Root `CLAUDE.md` is handled differently — it lands in `msg[0]` at session start as
+a `<system-reminder>` block, before any turns. Subdirs never touch the system prompt.
 
 ---
 
