@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-03-17T19:14:03.033Z",
+  "cli_js_path": "/Users/benkovich/Documents/agyn/claude-on-demand-claudmd-reading/node_modules/@anthropic-ai/claude-agent-sdk/cli.js",
+  "description": "Source code evidence for the CLAUDE.md injection mechanism in @anthropic-ai/claude-agent-sdk",
+  "findings": [
+    {
+      "label": "lJ7 — wraps CLAUDE.md content in <system-reminder>",
+      "offset": 2854731,
+      "snippet": "sterday\";return`${q} days ago`}function Cz8(A){let q=dJ7(A);if(q<=1)return\"\";return`This memory is ${q} days old. `+\"Memories are point-in-time observations, not live state — \"+\"claims about code behavior or file:line citations may be outdated. Verify against current code before asserting as fact.\"}function lJ7(A){let q=Cz8(A);if(!q)return\"\";return`<system-reminder>${q}</system-reminder>\n`}function iJ7(){if(process.env.CLAUDE_CODE_PLAN_V2_AGENT_COUNT){let K=parseInt(process.env.CLAUDE_CODE_PLAN_V2_AGENT_COUNT,10);if(!isNaN(K)&&K>0&&K<=10)return K}let A=CK(),q=ox();if(A===\"max\"&&q===\"default_claude_max_20x\")return 3;if(A===\"enterprise\"||A===\"team\")return 3;return 1}function nJ7(){if(process.e"
+    },
+    {
+      "label": "_B9 — retrieves stored CLAUDE.md and calls lJ7",
+      "offset": 5360819,
+      "snippet": "A.split(cm9.sep).join(dm9.sep);if(K.includes(\"/session-memory/\")&&K.endsWith(\".md\"))return\"session_memory\";if(K.includes(\"/projects/\")&&K.endsWith(\".jsonl\"))return\"session_transcript\";return null}function AB9(){return WG7}function qB9(A){return Kw1(A)}function zB9(){let A=IY(cK());return!YB9.has(A)}function _B9(A){let q=h94.get(A);if(q===void 0)return\"\";return lJ7(q)}async function y94(A,q,K){let Y=K??S36().maxTokens,z=C94(A,q);if(!z||z<=Y/4)return;let w=await S94(A)??z;if(w>Y)throw new xP1(w,Y)}function bP1(A,q,K,Y){return{type:\"image\",file:{base64:A.toString(\"base64\"),type:`image/${q}`,originalSize:K,dimensions:Y}}}async function L94(A,q,K,Y,z,_,w,O,$,H,j,J){if(Y===\"ipynb\"){let u=await w34"
+    },
+    {
+      "label": "Call site — _B9(A) prepended to file content in Read tool result",
+      "offset": 5373114,
+      "snippet": "ok\":return O34(A.file.cells,q);case\"pdf\":return{tool_use_id:q,type:\"tool_result\",content:`PDF file read: ${A.file.filePath} (${xq(A.file.originalSize)})`};case\"parts\":return{tool_use_id:q,type:\"tool_result\",content:`PDF pages extracted: ${A.file.count} page(s) from ${A.file.filePath} (${xq(A.file.originalSize)})`};case\"text\":{let K;if(A.file.content||A.file.resultWasTruncated){if(K=A.file.content?_B9(A)+qB9(A.file):\"\",A.file.resultWasTruncated)K+=`\n\n... [output truncated at byte cap — ${A.file.numLines} of ${A.file.totalLines} lines shown. Use a smaller limit or different offset to read more.] ...`;if(zB9())K+=KB9}else K=A.file.totalLines===0?\"<system-reminder>Warning: the file exists but th"
+    },
+    {
+      "label": "readFileState — deduplication Map used by Read tool",
+      "offset": 5371689,
+      "snippet": "rrorCode:9};return{result:!0}},async call({file_path:A,offset:q=1,limit:K=void 0,pages:Y},z,_,w){let{readFileState:O,fileReadingLimits:$}=z,H=S36(),j=$?.maxSizeBytes??H.maxSizeBytes,J=$?.maxTokens??H.maxTokens;if($!==void 0)d(\"tengu_file_read_limits_override\",{hasMaxTokens:$.maxTokens!==void 0,hasMaxSizeBytes:$.maxSizeBytes!==void 0});let M=g36.extname(A).toLowerCase().slice(1),D=L4(A),X=G1();if(!t6(process.env.CLAUDE_CODE_SIMPLE)){let P=await EW6([D],X);if(P.length>0){for(let W of P)z.dynamicSkillDirTriggers?.add(W);yW6(P).catch(()=>{})}LW6([D],X)}try{return await L94(A,D,D,M,q,K,Y,j,J,O,z,w?"
+    },
+    {
+      "label": "InstructionsLoaded hook schema — load_reason enum",
+      "offset": 8029915,
+      "snippet": "num(wfY),file_path:C.string().optional()}))),$fY=[\"session_start\",\"nested_traversal\",\"path_glob_match\",\"include\"],HfY=[\"User\",\"Project\",\"Local\",\"Managed\"],jfY=F6(()=>_j().and(C.object({hook_event_name:C.literal(\"InstructionsLoaded\"),file_path:C.string(),memory_type:C.enum(HfY),load_reason:C.enum($fY),globs:C.array(C.string()).optional(),trigger_fil"
+    }
+  ]
+}

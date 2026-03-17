@@ -3,10 +3,6 @@ node_modules/
 .claude/
 *.local
 
-# Raw proxy captures (large, contain API traffic)
-proxy.bodies.jsonl
-proxy.log.json
-
 # Artefacts written by experiments outside test-env
 src/constants.py
 

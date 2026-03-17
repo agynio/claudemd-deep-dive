@@ -6,7 +6,8 @@
   "scripts": {
     "exp1": "npx tsx src/experiment.ts",
     "exp2": "npx tsx src/experiment2.ts",
-    "exp3": "CLAUDECODE= npx tsx src/experiment3.ts"
+    "exp3": "CLAUDECODE= npx tsx src/experiment3.ts",
+    "source": "npx tsx src/extract-source.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "latest"
