@@ -1,0 +1,453 @@
+{
+  "timestamp": "2026-03-16T11:43:26.840Z",
+  "events": [
+    {
+      "ts": "2026-03-16T11:38:03.781Z",
+      "scenario": "A1_first_read_same_file",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "2d47fa45-f50a-46e5-a627-d60ce295d61d",
+        "resume": null
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:07.359Z",
+      "scenario": "A1_first_read_same_file",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Read",
+        "tool_input": {
+          "file_path": "<TEST_ENV>/src/main.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:07.376Z",
+      "scenario": "A1_first_read_same_file",
+      "type": "INSTRUCTIONS_LOADED",
+      "data": {
+        "file_path": "<TEST_ENV>/src/CLAUDE.md",
+        "memory_type": "Project",
+        "load_reason": "nested_traversal",
+        "trigger_file_path": "<TEST_ENV>/src/main.py"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:11.324Z",
+      "scenario": "A1_first_read_same_file",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE",
+          "SRC_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:11.802Z",
+      "scenario": "A2_second_read_same_file",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "2d47fa45-f50a-46e5-a627-d60ce295d61d",
+        "resume": "2d47fa45-f50a-46e5-a627-d60ce295d61d"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:16.779Z",
+      "scenario": "A2_second_read_same_file",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Read",
+        "tool_input": {
+          "file_path": "<TEST_ENV>/src/main.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:16.797Z",
+      "scenario": "A2_second_read_same_file",
+      "type": "INSTRUCTIONS_LOADED",
+      "data": {
+        "file_path": "<TEST_ENV>/src/CLAUDE.md",
+        "memory_type": "Project",
+        "load_reason": "nested_traversal",
+        "trigger_file_path": "<TEST_ENV>/src/main.py"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:21.039Z",
+      "scenario": "A2_second_read_same_file",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE",
+          "SRC_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:21.513Z",
+      "scenario": "B1_glob_first",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "e441e25b-b79c-4073-a180-b9ee4494299e",
+        "resume": null
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:25.682Z",
+      "scenario": "B1_glob_first",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Glob",
+        "tool_input": {
+          "pattern": "src/**/*.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:27.847Z",
+      "scenario": "B1_glob_first",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:28.331Z",
+      "scenario": "B2_read_after_glob",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "e441e25b-b79c-4073-a180-b9ee4494299e",
+        "resume": "e441e25b-b79c-4073-a180-b9ee4494299e"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:31.732Z",
+      "scenario": "B2_read_after_glob",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Read",
+        "tool_input": {
+          "file_path": "<TEST_ENV>/src/main.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:32.097Z",
+      "scenario": "B2_read_after_glob",
+      "type": "INSTRUCTIONS_LOADED",
+      "data": {
+        "file_path": "<TEST_ENV>/src/CLAUDE.md",
+        "memory_type": "Project",
+        "load_reason": "nested_traversal",
+        "trigger_file_path": "<TEST_ENV>/src/main.py"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:36.813Z",
+      "scenario": "B2_read_after_glob",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE",
+          "SRC_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:37.293Z",
+      "scenario": "C1_read_first",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "9db8af8a-8e53-4427-b47f-e2f34ff21edd",
+        "resume": null
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:41.480Z",
+      "scenario": "C1_read_first",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Read",
+        "tool_input": {
+          "file_path": "<TEST_ENV>/src/main.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:41.501Z",
+      "scenario": "C1_read_first",
+      "type": "INSTRUCTIONS_LOADED",
+      "data": {
+        "file_path": "<TEST_ENV>/src/CLAUDE.md",
+        "memory_type": "Project",
+        "load_reason": "nested_traversal",
+        "trigger_file_path": "<TEST_ENV>/src/main.py"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:50.963Z",
+      "scenario": "C1_read_first",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE",
+          "SRC_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:51.476Z",
+      "scenario": "C2_glob_after_read",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "9db8af8a-8e53-4427-b47f-e2f34ff21edd",
+        "resume": "9db8af8a-8e53-4427-b47f-e2f34ff21edd"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:55.205Z",
+      "scenario": "C2_glob_after_read",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Glob",
+        "tool_input": {
+          "pattern": "src/**/*.py",
+          "path": "<TEST_ENV>"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:38:59.854Z",
+      "scenario": "C2_glob_after_read",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:39:00.340Z",
+      "scenario": "D1_compaction_setup_1",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "7cad8d4e-9f80-47d3-a397-bb7d502ca798",
+        "resume": null
+      }
+    },
+    {
+      "ts": "2026-03-16T11:39:03.909Z",
+      "scenario": "D1_compaction_setup_1",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Read",
+        "tool_input": {
+          "file_path": "<TEST_ENV>/src/main.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:39:03.926Z",
+      "scenario": "D1_compaction_setup_1",
+      "type": "INSTRUCTIONS_LOADED",
+      "data": {
+        "file_path": "<TEST_ENV>/src/CLAUDE.md",
+        "memory_type": "Project",
+        "load_reason": "nested_traversal",
+        "trigger_file_path": "<TEST_ENV>/src/main.py"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:40:05.586Z",
+      "scenario": "D1_compaction_setup_1",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE",
+          "SRC_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:40:06.099Z",
+      "scenario": "D2_compaction_setup_2",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "7cad8d4e-9f80-47d3-a397-bb7d502ca798",
+        "resume": "7cad8d4e-9f80-47d3-a397-bb7d502ca798"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:41:07.308Z",
+      "scenario": "D2_compaction_setup_2",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:41:07.818Z",
+      "scenario": "D3_compaction_setup_3",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "7cad8d4e-9f80-47d3-a397-bb7d502ca798",
+        "resume": "7cad8d4e-9f80-47d3-a397-bb7d502ca798"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:41:11.900Z",
+      "scenario": "D3_compaction_setup_3",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Read",
+        "tool_input": {
+          "file_path": "<TEST_ENV>/src/utils.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:41:11.916Z",
+      "scenario": "D3_compaction_setup_3",
+      "type": "INSTRUCTIONS_LOADED",
+      "data": {
+        "file_path": "<TEST_ENV>/src/CLAUDE.md",
+        "memory_type": "Project",
+        "load_reason": "nested_traversal",
+        "trigger_file_path": "<TEST_ENV>/src/utils.py"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:34.357Z",
+      "scenario": "D3_compaction_setup_3",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE",
+          "SRC_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:34.842Z",
+      "scenario": "D4_after_much_context_access_tests",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "7cad8d4e-9f80-47d3-a397-bb7d502ca798",
+        "resume": "7cad8d4e-9f80-47d3-a397-bb7d502ca798"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:39.579Z",
+      "scenario": "D4_after_much_context_access_tests",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Read",
+        "tool_input": {
+          "file_path": "<TEST_ENV>/tests/test_main.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:39.596Z",
+      "scenario": "D4_after_much_context_access_tests",
+      "type": "INSTRUCTIONS_LOADED",
+      "data": {
+        "file_path": "<TEST_ENV>/tests/CLAUDE.md",
+        "memory_type": "Project",
+        "load_reason": "nested_traversal",
+        "trigger_file_path": "<TEST_ENV>/tests/test_main.py"
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:49.129Z",
+      "scenario": "D4_after_much_context_access_tests",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE",
+          "TESTS_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:49.622Z",
+      "scenario": "E_bash_read_file",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "13885b73-679f-4f9f-9d05-3989c2173b89",
+        "resume": null
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:52.553Z",
+      "scenario": "E_bash_read_file",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "cat src/main.py",
+          "description": "Display contents of src/main.py"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:59.493Z",
+      "scenario": "E_bash_read_file",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    },
+    {
+      "ts": "2026-03-16T11:42:59.962Z",
+      "scenario": "F_write_without_read",
+      "type": "SESSION_START",
+      "data": {
+        "session_id": "61beca94-42da-49b5-ae2f-f3492a16eea8",
+        "resume": null
+      }
+    },
+    {
+      "ts": "2026-03-16T11:43:21.340Z",
+      "scenario": "F_write_without_read",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "ls <TEST_ENV>/src 2>/dev/null || echo \"Directory does not exist\"",
+          "description": "Check if src directory exists"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:43:24.082Z",
+      "scenario": "F_write_without_read",
+      "type": "TOOL_USE",
+      "data": {
+        "tool_name": "Write",
+        "tool_input": {
+          "file_path": "<TEST_ENV>/src/constants.py",
+          "content": "PI = 3.14159\n"
+        }
+      }
+    },
+    {
+      "ts": "2026-03-16T11:43:26.840Z",
+      "scenario": "F_write_without_read",
+      "type": "RESPONSE_MARKERS",
+      "data": {
+        "found": [
+          "ROOT_INSTRUCTIONS_ACTIVE"
+        ]
+      }
+    }
+  ]
+}
