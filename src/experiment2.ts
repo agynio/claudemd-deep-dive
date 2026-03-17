@@ -10,6 +10,7 @@ import { writeFileSync, readFileSync } from "fs";
 import { resolve } from "path";
 
 const TEST_ENV = resolve(new URL(".", import.meta.url).pathname, "../test-env");
+const PROJECT_ROOT = resolve(new URL(".", import.meta.url).pathname, "../..");
 const RESULTS_FILE = resolve(new URL(".", import.meta.url).pathname, "../results2.json");
 
 // ─── Tracing ───────────────────────────────────────────────────────────────
@@ -57,7 +58,7 @@ const toolUseHook: HookCallback = async (input) => {
     const toolInput = input.tool_input as Record<string, unknown>;
     const cleanedInput: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(toolInput)) {
-      cleanedInput[k] = typeof v === "string" ? v.replace(TEST_ENV, "<TEST_ENV>") : v;
+      cleanedInput[k] = typeof v === "string" ? v.replace(TEST_ENV, "<TEST_ENV>").replace(PROJECT_ROOT, "<project_root>") : v;
     }
     record("TOOL_USE", { tool_name: input.tool_name, tool_input: cleanedInput });
   }

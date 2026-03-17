@@ -212,7 +212,7 @@ async function main() {
   // ── Save results ───────────────────────────────────────────────────────
   const results = {
     timestamp: new Date().toISOString(),
-    test_env: TEST_ENV,
+    test_env: "<project_root>/test-env",
     events: allEvents,
     summary: buildSummary(),
   };

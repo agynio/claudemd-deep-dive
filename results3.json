@@ -2,20 +2,20 @@
   "results": [
     {
       "name": "7_chained_read_via_claudemd",
-      "sessionId": "4404666e-d655-4acf-b069-21035dcfd93f",
+      "sessionId": "06cde781-e0af-4143-84af-5b90ab03eb0d",
       "instructionsLoaded": [
         {
           "file": "<TEST_ENV>/src/CLAUDE.md",
           "reason": "nested_traversal"
         }
       ],
-      "apiCalls": 6
+      "apiCalls": 4
     }
   ],
   "proxyLogs": [
     {
       "id": 1,
-      "ts": "2026-03-16T16:51:54.235Z",
+      "ts": "2026-03-17T17:44:30.489Z",
       "label": "7_chained_read_via_claudemd",
       "path": "/v1/messages/count_tokens?beta=true",
       "model": "claude-sonnet-4-6",
@@ -29,24 +29,24 @@
     },
     {
       "id": 2,
-      "ts": "2026-03-16T16:51:54.692Z",
+      "ts": "2026-03-17T17:44:30.925Z",
       "label": "7_chained_read_via_claudemd",
       "path": "/v1/messages?beta=true",
       "model": "claude-sonnet-4-6",
       "system_chars": 154,
       "system_claude_md_counts": {},
       "message_count": 1,
-      "messages_chars": 1959,
+      "messages_chars": 4548,
       "all_content_claude_md_counts": {
         "root/CLAUDE.md": 1
       },
       "status": 200,
       "input_tokens": 3,
-      "output_tokens": 112
+      "output_tokens": 123
     },
     {
       "id": 3,
-      "ts": "2026-03-16T16:51:57.287Z",
+      "ts": "2026-03-17T17:44:34.272Z",
       "label": "7_chained_read_via_claudemd",
       "path": "/v1/messages?beta=true",
       "model": "claude-haiku-4-5-20251001",
@@ -61,54 +61,21 @@
     },
     {
       "id": 4,
-      "ts": "2026-03-16T16:51:57.290Z",
+      "ts": "2026-03-17T17:44:34.274Z",
       "label": "7_chained_read_via_claudemd",
       "path": "/v1/messages?beta=true",
       "model": "claude-sonnet-4-6",
       "system_chars": 154,
       "system_claude_md_counts": {},
       "message_count": 3,
-      "messages_chars": 3494,
+      "messages_chars": 6365,
       "all_content_claude_md_counts": {
         "root/CLAUDE.md": 1,
         "src/CLAUDE.md": 1
       },
       "status": 200,
       "input_tokens": 1,
-      "output_tokens": 84
-    },
-    {
-      "id": 6,
-      "ts": "2026-03-16T16:51:59.603Z",
-      "label": "7_chained_read_via_claudemd",
-      "path": "/v1/messages?beta=true",
-      "model": "claude-sonnet-4-6",
-      "system_chars": 154,
-      "system_claude_md_counts": {},
-      "message_count": 5,
-      "messages_chars": 4318,
-      "all_content_claude_md_counts": {
-        "root/CLAUDE.md": 1,
-        "src/CLAUDE.md": 1
-      },
-      "status": 200,
-      "input_tokens": 1,
-      "output_tokens": 123
-    },
-    {
-      "id": 5,
-      "ts": "2026-03-16T16:51:59.596Z",
-      "label": "7_chained_read_via_claudemd",
-      "path": "/v1/messages?beta=true",
-      "model": "claude-haiku-4-5-20251001",
-      "system_chars": 813,
-      "system_claude_md_counts": {},
-      "message_count": 1,
-      "messages_chars": 605,
-      "all_content_claude_md_counts": {},
-      "status": 200,
-      "input_tokens": 343,
-      "output_tokens": 11
+      "output_tokens": 160
     }
   ]
 }

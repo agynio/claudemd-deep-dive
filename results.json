@@ -1,18 +1,18 @@
 {
-  "timestamp": "2026-03-16T11:36:38.003Z",
-  "test_env": "/Users/benkovich/Documents/agyn/claude-on-demand-claudmd-reading/test-env",
+  "timestamp": "2026-03-17T17:39:35.332Z",
+  "test_env": "<project_root>/test-env",
   "events": [
     {
-      "ts": "2026-03-16T11:35:22.310Z",
+      "ts": "2026-03-17T17:38:15.937Z",
       "scenario": "1_first_access_src",
       "type": "SESSION_START",
       "data": {
-        "session_id": "8eeff12b-ea3e-4f3b-b2fc-d464e34f3a9f",
+        "session_id": "f8ba62d1-912b-4f35-8e55-7cefbb332362",
         "resume": null
       }
     },
     {
-      "ts": "2026-03-16T11:35:25.063Z",
+      "ts": "2026-03-17T17:38:19.469Z",
       "scenario": "1_first_access_src",
       "type": "TOOL_USE",
       "data": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:25.081Z",
+      "ts": "2026-03-17T17:38:19.486Z",
       "scenario": "1_first_access_src",
       "type": "INSTRUCTIONS_LOADED",
       "data": {
@@ -34,7 +34,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:28.509Z",
+      "ts": "2026-03-17T17:38:23.513Z",
       "scenario": "1_first_access_src",
       "type": "RESPONSE_MARKERS",
       "data": {
@@ -42,20 +42,20 @@
           "ROOT_INSTRUCTIONS_ACTIVE",
           "SRC_INSTRUCTIONS_ACTIVE"
         ],
-        "text_length": 312
+        "text_length": 241
       }
     },
     {
-      "ts": "2026-03-16T11:35:28.986Z",
+      "ts": "2026-03-17T17:38:24.024Z",
       "scenario": "2_second_access_src_same_session",
       "type": "SESSION_START",
       "data": {
-        "session_id": "8eeff12b-ea3e-4f3b-b2fc-d464e34f3a9f",
-        "resume": "8eeff12b-ea3e-4f3b-b2fc-d464e34f3a9f"
+        "session_id": "f8ba62d1-912b-4f35-8e55-7cefbb332362",
+        "resume": "f8ba62d1-912b-4f35-8e55-7cefbb332362"
       }
     },
     {
-      "ts": "2026-03-16T11:35:33.561Z",
+      "ts": "2026-03-17T17:38:26.954Z",
       "scenario": "2_second_access_src_same_session",
       "type": "TOOL_USE",
       "data": {
@@ -66,7 +66,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:33.588Z",
+      "ts": "2026-03-17T17:38:26.968Z",
       "scenario": "2_second_access_src_same_session",
       "type": "INSTRUCTIONS_LOADED",
       "data": {
@@ -77,7 +77,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:37.308Z",
+      "ts": "2026-03-17T17:38:32.089Z",
       "scenario": "2_second_access_src_same_session",
       "type": "RESPONSE_MARKERS",
       "data": {
@@ -85,20 +85,20 @@
           "ROOT_INSTRUCTIONS_ACTIVE",
           "SRC_INSTRUCTIONS_ACTIVE"
         ],
-        "text_length": 406
+        "text_length": 313
       }
     },
     {
-      "ts": "2026-03-16T11:35:37.777Z",
+      "ts": "2026-03-17T17:38:32.588Z",
       "scenario": "3_new_session_access_src",
       "type": "SESSION_START",
       "data": {
-        "session_id": "9abaad8f-2961-489d-acdd-d3d5e26e8e6d",
+        "session_id": "5e124f34-2a3b-40cd-99e2-708755ccfd04",
         "resume": null
       }
     },
     {
-      "ts": "2026-03-16T11:35:42.060Z",
+      "ts": "2026-03-17T17:38:36.673Z",
       "scenario": "3_new_session_access_src",
       "type": "TOOL_USE",
       "data": {
@@ -109,7 +109,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:42.106Z",
+      "ts": "2026-03-17T17:38:36.691Z",
       "scenario": "3_new_session_access_src",
       "type": "INSTRUCTIONS_LOADED",
       "data": {
@@ -120,7 +120,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:48.069Z",
+      "ts": "2026-03-17T17:38:40.167Z",
       "scenario": "3_new_session_access_src",
       "type": "RESPONSE_MARKERS",
       "data": {
@@ -128,20 +128,20 @@
           "ROOT_INSTRUCTIONS_ACTIVE",
           "SRC_INSTRUCTIONS_ACTIVE"
         ],
-        "text_length": 316
+        "text_length": 238
       }
     },
     {
-      "ts": "2026-03-16T11:35:48.551Z",
+      "ts": "2026-03-17T17:38:40.720Z",
       "scenario": "4_multiple_subdirs",
       "type": "SESSION_START",
       "data": {
-        "session_id": "1888221f-c582-49e9-a980-bb77b7184f4c",
+        "session_id": "81e4d961-b169-4460-be40-7734a9480a70",
         "resume": null
       }
     },
     {
-      "ts": "2026-03-16T11:35:54.032Z",
+      "ts": "2026-03-17T17:38:44.769Z",
       "scenario": "4_multiple_subdirs",
       "type": "TOOL_USE",
       "data": {
@@ -152,7 +152,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:54.422Z",
+      "ts": "2026-03-17T17:38:45.150Z",
       "scenario": "4_multiple_subdirs",
       "type": "TOOL_USE",
       "data": {
@@ -163,7 +163,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:55.055Z",
+      "ts": "2026-03-17T17:38:45.631Z",
       "scenario": "4_multiple_subdirs",
       "type": "TOOL_USE",
       "data": {
@@ -174,7 +174,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:55.094Z",
+      "ts": "2026-03-17T17:38:45.652Z",
       "scenario": "4_multiple_subdirs",
       "type": "INSTRUCTIONS_LOADED",
       "data": {
@@ -185,7 +185,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:55.094Z",
+      "ts": "2026-03-17T17:38:45.652Z",
       "scenario": "4_multiple_subdirs",
       "type": "INSTRUCTIONS_LOADED",
       "data": {
@@ -196,7 +196,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:35:55.094Z",
+      "ts": "2026-03-17T17:38:45.653Z",
       "scenario": "4_multiple_subdirs",
       "type": "INSTRUCTIONS_LOADED",
       "data": {
@@ -207,7 +207,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:36:01.608Z",
+      "ts": "2026-03-17T17:38:52.507Z",
       "scenario": "4_multiple_subdirs",
       "type": "RESPONSE_MARKERS",
       "data": {
@@ -217,20 +217,20 @@
           "TESTS_INSTRUCTIONS_ACTIVE",
           "DOCS_INSTRUCTIONS_ACTIVE"
         ],
-        "text_length": 766
+        "text_length": 912
       }
     },
     {
-      "ts": "2026-03-16T11:36:02.081Z",
+      "ts": "2026-03-17T17:38:53.016Z",
       "scenario": "5_write_to_src",
       "type": "SESSION_START",
       "data": {
-        "session_id": "e677c921-07a9-450d-bb6a-01a19770f01f",
+        "session_id": "74e7d646-1c4b-433d-8f88-ca7cf32bfc33",
         "resume": null
       }
     },
     {
-      "ts": "2026-03-16T11:36:05.295Z",
+      "ts": "2026-03-17T17:38:56.650Z",
       "scenario": "5_write_to_src",
       "type": "TOOL_USE",
       "data": {
@@ -241,7 +241,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:36:05.307Z",
+      "ts": "2026-03-17T17:38:56.665Z",
       "scenario": "5_write_to_src",
       "type": "INSTRUCTIONS_LOADED",
       "data": {
@@ -252,21 +252,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:36:09.000Z",
-      "scenario": "5_write_to_src",
-      "type": "TOOL_USE",
-      "data": {
-        "tool_name": "Edit",
-        "tool_input": {
-          "file_path": "<TEST_ENV>/src/main.py",
-          "old_string": "def add(a: int, b: int) -> int:",
-          "new_string": "\"\"\"Math utility functions.\"\"\"\n\n\ndef add(a: int, b: int) -> int:",
-          "replace_all": false
-        }
-      }
-    },
-    {
-      "ts": "2026-03-16T11:36:11.689Z",
+      "ts": "2026-03-17T17:39:02.589Z",
       "scenario": "5_write_to_src",
       "type": "RESPONSE_MARKERS",
       "data": {
@@ -274,20 +260,20 @@
           "ROOT_INSTRUCTIONS_ACTIVE",
           "SRC_INSTRUCTIONS_ACTIVE"
         ],
-        "text_length": 207
+        "text_length": 168
       }
     },
     {
-      "ts": "2026-03-16T11:36:12.172Z",
+      "ts": "2026-03-17T17:39:03.122Z",
       "scenario": "6_no_file_access",
       "type": "SESSION_START",
       "data": {
-        "session_id": "ff0ce901-95ee-42f9-a173-881275a318b7",
+        "session_id": "db38128a-c345-48b0-8dab-a24efaa53a22",
         "resume": null
       }
     },
     {
-      "ts": "2026-03-16T11:36:14.621Z",
+      "ts": "2026-03-17T17:39:06.102Z",
       "scenario": "6_no_file_access",
       "type": "RESPONSE_MARKERS",
       "data": {
@@ -296,16 +282,16 @@
       }
     },
     {
-      "ts": "2026-03-16T11:36:15.095Z",
+      "ts": "2026-03-17T17:39:06.608Z",
       "scenario": "7_resumed_session_new_subdir",
       "type": "SESSION_START",
       "data": {
-        "session_id": "9abaad8f-2961-489d-acdd-d3d5e26e8e6d",
-        "resume": "9abaad8f-2961-489d-acdd-d3d5e26e8e6d"
+        "session_id": "5e124f34-2a3b-40cd-99e2-708755ccfd04",
+        "resume": "5e124f34-2a3b-40cd-99e2-708755ccfd04"
       }
     },
     {
-      "ts": "2026-03-16T11:36:19.701Z",
+      "ts": "2026-03-17T17:39:10.441Z",
       "scenario": "7_resumed_session_new_subdir",
       "type": "TOOL_USE",
       "data": {
@@ -316,7 +302,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:36:19.717Z",
+      "ts": "2026-03-17T17:39:10.693Z",
       "scenario": "7_resumed_session_new_subdir",
       "type": "INSTRUCTIONS_LOADED",
       "data": {
@@ -327,7 +313,7 @@
       }
     },
     {
-      "ts": "2026-03-16T11:36:24.606Z",
+      "ts": "2026-03-17T17:39:14.573Z",
       "scenario": "7_resumed_session_new_subdir",
       "type": "RESPONSE_MARKERS",
       "data": {
@@ -335,20 +321,20 @@
           "ROOT_INSTRUCTIONS_ACTIVE",
           "TESTS_INSTRUCTIONS_ACTIVE"
         ],
-        "text_length": 320
+        "text_length": 218
       }
     },
     {
-      "ts": "2026-03-16T11:36:25.102Z",
+      "ts": "2026-03-17T17:39:15.084Z",
       "scenario": "8_glob_in_subdir",
       "type": "SESSION_START",
       "data": {
-        "session_id": "ea473b3a-4bf9-48d9-9fb9-2b27f265fb88",
+        "session_id": "8fa1d110-b522-4091-ada8-d4bddac17296",
         "resume": null
       }
     },
     {
-      "ts": "2026-03-16T11:36:27.824Z",
+      "ts": "2026-03-17T17:39:19.511Z",
       "scenario": "8_glob_in_subdir",
       "type": "TOOL_USE",
       "data": {
@@ -359,46 +345,46 @@
       }
     },
     {
-      "ts": "2026-03-16T11:36:30.625Z",
+      "ts": "2026-03-17T17:39:24.649Z",
       "scenario": "8_glob_in_subdir",
       "type": "RESPONSE_MARKERS",
       "data": {
         "found": [
           "ROOT_INSTRUCTIONS_ACTIVE"
         ],
-        "text_length": 159
+        "text_length": 143
       }
     },
     {
-      "ts": "2026-03-16T11:36:31.170Z",
+      "ts": "2026-03-17T17:39:25.205Z",
       "scenario": "9_bash_cd_subdir",
       "type": "SESSION_START",
       "data": {
-        "session_id": "650e5623-f86e-4c97-9500-a56f15536c7f",
+        "session_id": "eccb4e56-ba36-45c8-b4a5-55d8ecfcd7f8",
         "resume": null
       }
     },
     {
-      "ts": "2026-03-16T11:36:33.958Z",
+      "ts": "2026-03-17T17:39:30.448Z",
       "scenario": "9_bash_cd_subdir",
       "type": "TOOL_USE",
       "data": {
         "tool_name": "Bash",
         "tool_input": {
           "command": "cd src && cat main.py",
-          "description": "Change to src directory and display main.py"
+          "description": "Change to src directory and print main.py"
         }
       }
     },
     {
-      "ts": "2026-03-16T11:36:38.003Z",
+      "ts": "2026-03-17T17:39:35.332Z",
       "scenario": "9_bash_cd_subdir",
       "type": "RESPONSE_MARKERS",
       "data": {
         "found": [
           "ROOT_INSTRUCTIONS_ACTIVE"
         ],
-        "text_length": 337
+        "text_length": 461
       }
     }
   ],
