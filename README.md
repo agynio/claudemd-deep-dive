@@ -69,11 +69,12 @@ Anthropic API and traced every `/v1/messages` call. Full write-up: **[REPORT.md]
 
 ## Setup
 
-Requires Node.js 18+ and an Anthropic API key.
+Requires Node.js 18+ and an Anthropic API key. If you already use Claude Code
+interactively, your key is already set — the experiments spawn Claude Code
+subprocesses that inherit `ANTHROPIC_API_KEY` from the environment.
 
 ```bash
 npm install
-export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 ---
